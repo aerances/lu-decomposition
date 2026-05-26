@@ -35,9 +35,9 @@ li {
     font-size: 15px;
 }
 
-/* ✅ ONLY CHANGE: make matrix grid dynamic */
 .matrix-grid {
     display: grid;
+    grid-template-columns: repeat(3, 90px);
     gap: 12px;
     margin: 20px 0;
 }
