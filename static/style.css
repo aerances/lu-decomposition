@@ -35,13 +35,14 @@ li {
     font-size: 15px;
 }
 
+/* ✅ UPDATED: dynamic matrix grid (IMPORTANT CHANGE ONLY) */
 .matrix-grid {
     display: grid;
-    grid-template-columns: repeat(3, 90px);
     gap: 12px;
     margin: 20px 0;
 }
 
+/* input styling unchanged */
 .matrix-grid input {
     width: 90px;
     height: 45px;
