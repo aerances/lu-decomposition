@@ -43,21 +43,78 @@
 
     $$l_{ii} = 1 \quad \text{for all } i$$
 
+    <p>
+        Doolittle's method provides an alternative way to factorize
+        \(A\) into an LU decomposition directly without going through
+        the process of Gaussian Elimination. The parameters are
+        systematically solved from the linear system mappings
+        column-by-column and row-by-row using the following
+        linear algebraic formulations:
+    </p>
+
+    <ul>
+
+        <li>
+            <strong>Upper Matrix Elements (\(U\)):</strong>
+
+            For all \(j\),
+
+            if \(i = 0\)
+
+            $$u_{ij} = a_{ij}$$
+
+            For \(i > 0\)
+
+            $$u_{ij} = a_{ij} - \sum_{k=0}^{i-1} l_{ik}u_{kj}$$
+        </li>
+
+        <li>
+            <strong>Lower Matrix Elements (\(L\)):</strong>
+
+            For all \(i\),
+
+            if \(j = 0\)
+
+            $$l_{ij} = \frac{a_{ij}}{u_{jj}}$$
+
+            For \(j > 0\)
+
+            $$l_{ij} =
+            \frac{
+            a_{ij} - \sum_{k=0}^{j-1} l_{ik}u_{kj}
+            }{
+            u_{jj}
+            }$$
+
+        </li>
+
+    </ul>
+
     <div class="apps-box">
 
         <h3>Applications of the Doolittle Algorithm</h3>
 
         <ol>
+
             <li>
-                Solving systems of linear equations
+                <strong>Solving Linear Equations:</strong>
+                LU decomposition simplifies solving \(AX=B\)
+                by splitting it into two simpler systems:
+                solving \(LY=B\) using forward substitution,
+                then solving \(UX=Y\) using backward substitution.
             </li>
 
             <li>
-                Matrix inversion
+                <strong>Matrix Inversion:</strong>
+                LU decomposition can be used to compute
+                the inverse of a matrix efficiently.
             </li>
 
             <li>
-                Determinant computation
+                <strong>Determinant Calculation:</strong>
+                The determinant of matrix \(A\) can be obtained
+                from the product of the diagonal elements
+                of matrix \(U\).
             </li>
 
         </ol>
@@ -99,6 +156,22 @@
             \(u_{33}=10-(3\times1+2\times2)=3\)
         </div>
 
+        <p><strong>Final Matrices:</strong></p>
+
+        $$L =
+        \begin{pmatrix}
+        1 & 0 & 0 \\
+        2 & 1 & 0 \\
+        3 & 2 & 1
+        \end{pmatrix}$$
+
+        $$U =
+        \begin{pmatrix}
+        2 & 3 & 1 \\
+        0 & 1 & 2 \\
+        0 & 0 & 3
+        \end{pmatrix}$$
+
     </div>
 
     <div class="example-box ex2">
@@ -133,6 +206,22 @@
             <br>
             \(u_{33}=13-(2\times4+1\times2)=3\)
         </div>
+
+        <p><strong>Final Matrices:</strong></p>
+
+        $$L =
+        \begin{pmatrix}
+        1 & 0 & 0 \\
+        3 & 1 & 0 \\
+        2 & 1 & 1
+        \end{pmatrix}$$
+
+        $$U =
+        \begin{pmatrix}
+        1 & 2 & 4 \\
+        0 & 2 & 2 \\
+        0 & 0 & 3
+        \end{pmatrix}$$
 
     </div>
 
