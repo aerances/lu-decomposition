@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LU Decomposition Calculator (Doolittle Method)</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>LU Decomposition (Doolittle Method)</h1>
+
+    <p>
+        <strong>Course Project:</strong>
+        Numerical Methods Online Calculator Framework
+    </p>
+
+    <h2>1. Mathematical Discussion</h2>
+
+    <p>
+        LU Decomposition factorizes a given square coefficient matrix
+        \(A\) into a product of two companion triangular matrices:
+        a <strong>Lower Triangular Matrix (\(L\))</strong>
+        and an <strong>Upper Triangular Matrix (\(U\))</strong>,
+        such that:
+    </p>
+
+    $$A = LU$$
+
+    <p>
+        In the <strong>Doolittle algorithm variant</strong>,
+        the diagonal elements of matrix \(L\) are equal to 1:
+    </p>
+
+    $$l_{ii} = 1 \quad \text{for all } i$$
+
+    <div class="apps-box">
+
+        <h3>Applications of the Doolittle Algorithm</h3>
+
+        <ol>
+            <li>
+                Solving systems of linear equations
+            </li>
+
+            <li>
+                Matrix inversion
+            </li>
+
+            <li>
+                Determinant computation
+            </li>
+
+        </ol>
+
+    </div>
+
+    <h2>2. Step-by-Step Worked Examples</h2>
+
+    <div class="example-box ex1">
+
+        <h3>Worked Example 1</h3>
+
+        $$A =
+        \begin{pmatrix}
+        2 & 3 & 1 \\
+        4 & 7 & 4 \\
+        6 & 11 & 10
+        \end{pmatrix}$$
+
+        <div class="math-step">
+            \(u_{11}=2,\quad u_{12}=3,\quad u_{13}=1\)
+        </div>
+
+        <div class="math-step">
+            \(l_{21}=\frac{4}{2}=2\)
+            <br>
+            \(l_{31}=\frac{6}{2}=3\)
+        </div>
+
+        <div class="math-step">
+            \(u_{22}=7-(2\times3)=1\)
+            <br>
+            \(u_{23}=4-(2\times1)=2\)
+        </div>
+
+        <div class="math-step">
+            \(l_{32}=\frac{11-(3\times3)}{1}=2\)
+            <br>
+            \(u_{33}=10-(3\times1+2\times2)=3\)
+        </div>
+
+    </div>
+
+    <div class="example-box ex2">
+
+        <h3>Worked Example 2</h3>
+
+        $$A =
+        \begin{pmatrix}
+        1 & 2 & 4 \\
+        3 & 8 & 14 \\
+        2 & 6 & 13
+        \end{pmatrix}$$
+
+        <div class="math-step">
+            \(u_{11}=1,\quad u_{12}=2,\quad u_{13}=4\)
+        </div>
+
+        <div class="math-step">
+            \(l_{21}=\frac{3}{1}=3\)
+            <br>
+            \(l_{31}=\frac{2}{1}=2\)
+        </div>
+
+        <div class="math-step">
+            \(u_{22}=8-(3\times2)=2\)
+            <br>
+            \(u_{23}=14-(3\times4)=2\)
+        </div>
+
+        <div class="math-step">
+            \(l_{32}=\frac{6-(2\times2)}{2}=1\)
+            <br>
+            \(u_{33}=13-(2\times4+1\times2)=3\)
+        </div>
+
+    </div>
+
+    <h2>3. Interactive Matrix Calculator</h2>
+
+    <p>
+        Enter values for a \(3 \times 3\) matrix.
+    </p>
+
+    <form method="POST">
+
+        <div class="matrix-grid">
+
+            <input type="number" step="any" name="cell_0_0"
+            value="{{ matrix_input[0][0] if matrix_input else 2 }}" required>
+
+            <input type="number" step="any" name="cell_0_1"
+            value="{{ matrix_input[0][1] if matrix_input else 3 }}" required>
+
+            <input type="number" step="any" name="cell_0_2"
+            value="{{ matrix_input[0][2] if matrix_input else 1 }}" required>
+
+            <input type="number" step="any" name="cell_1_0"
+            value="{{ matrix_input[1][0] if matrix_input else 4 }}" required>
+
+            <input type="number" step="any" name="cell_1_1"
+            value="{{ matrix_input[1][1] if matrix_input else 7 }}" required>
+
+            <input type="number" step="any" name="cell_1_2"
+            value="{{ matrix_input[1][2] if matrix_input else 4 }}" required>
+
+            <input type="number" step="any" name="cell_2_0"
+            value="{{ matrix_input[2][0] if matrix_input else 6 }}" required>
+
+            <input type="number" step="any" name="cell_2_1"
+            value="{{ matrix_input[2][1] if matrix_input else 11 }}" required>
+
+            <input type="number" step="any" name="cell_2_2"
+            value="{{ matrix_input[2][2] if matrix_input else 10 }}" required>
+
+        </div>
+
+        <button type="submit">
+            Compute Decomposition
+        </button>
+
+    </form>
+
+    {% if error %}
+
+        <div class="error">
+
+            <strong>Calculation Halt:</strong>
+            {{ error }}
+
+        </div>
+
+    {% endif %}
+
+    {% if result %}
+
+        <div class="results-section">
+
+            <h3>Full Computation Trace</h3>
+
+            {% for step in steps %}
+
+                {% if "---" in step %}
+
+                    <div class="step-heading">
+                        {{ step.replace('---', '') }}
+                    </div>
+
+                {% else %}
+
+                    <div class="math-step">
+                        {{ step }}
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+            <div class="answer-box">
+
+                <h3>Final Answer Configuration</h3>
+
+                <p><strong>Lower Triangular Matrix (L):</strong></p>
+
+                $$L =
+                \begin{pmatrix}
+                {{ "%.2f"|format(result['L'][0][0]) }} &
+                {{ "%.2f"|format(result['L'][0][1]) }} &
+                {{ "%.2f"|format(result['L'][0][2]) }} \\
+
+                {{ "%.2f"|format(result['L'][1][0]) }} &
+                {{ "%.2f"|format(result['L'][1][1]) }} &
+                {{ "%.2f"|format(result['L'][1][2]) }} \\
+
+                {{ "%.2f"|format(result['L'][2][0]) }} &
+                {{ "%.2f"|format(result['L'][2][1]) }} &
+                {{ "%.2f"|format(result['L'][2][2]) }}
+                \end{pmatrix}$$
+
+                <p><strong>Upper Triangular Matrix (U):</strong></p>
+
+                $$U =
+                \begin{pmatrix}
+                {{ "%.2f"|format(result['U'][0][0]) }} &
+                {{ "%.2f"|format(result['U'][0][1]) }} &
+                {{ "%.2f"|format(result['U'][0][2]) }} \\
+
+                {{ "%.2f"|format(result['U'][1][0]) }} &
+                {{ "%.2f"|format(result['U'][1][1]) }} &
+                {{ "%.2f"|format(result['U'][1][2]) }} \\
+
+                {{ "%.2f"|format(result['U'][2][0]) }} &
+                {{ "%.2f"|format(result['U'][2][1]) }} &
+                {{ "%.2f"|format(result['U'][2][2]) }}
+                \end{pmatrix}$$
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
