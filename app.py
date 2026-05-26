@@ -1,141 +1,162 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    background-color: #f4f6f9;
-    color: #333;
-}
+from flask import Flask, render_template, request
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
-}
+app = Flask(__name__)
 
-h1 {
-    color: #2c3e50;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 15px;
-}
 
-h2 {
-    color: #2980b9;
-    margin-top: 30px;
-}
+def doolittle_lu_with_steps(matrix):
+    """
+    Executes LU Decomposition using the Doolittle Method
+    and records step-by-step calculations.
+    """
 
-h3 {
-    color: #34495e;
-}
+    n = len(matrix)
 
-p,
-li {
-    line-height: 1.6;
-    font-size: 15px;
-}
+    L = [[1.0 if i == j else 0.0 for j in range(n)] for i in range(n)]
+    U = [[0.0 for j in range(n)] for i in range(n)]
 
-/* ✅ UPDATED: dynamic matrix grid (IMPORTANT CHANGE ONLY) */
-.matrix-grid {
-    display: grid;
-    gap: 12px;
-    margin: 20px 0;
-}
+    steps = []
 
-/* input styling unchanged */
-.matrix-grid input {
-    width: 90px;
-    height: 45px;
-    text-align: center;
-    font-size: 16px;
-    border: 1px solid #bdc3c7;
-    border-radius: 6px;
-    background-color: #fafafa;
-}
+    for i in range(n):
 
-.matrix-grid input:focus {
-    border-color: #3498db;
-    outline: none;
-    background-color: white;
-}
+        # COMPUTE U MATRIX
+        steps.append(f"--- Computing Row {i+1} of Upper Matrix U ---")
 
-button {
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+        for k in range(i, n):
 
-button:hover {
-    background-color: #27ae60;
-}
+            terms = [
+                f"(L_{{{i+1}{j+1}}} \\times U_{{{j+1}{k+1}}})"
+                for j in range(i)
+            ]
 
-.error {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-left: 5px solid #dc3545;
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 20px;
-}
+            terms_calc = [
+                L[i][j] * U[j][k]
+                for j in range(i)
+            ]
 
-.results-section {
-    margin-top: 35px;
-    background: #f8f9fa;
-    padding: 25px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
+            total_sum = sum(terms_calc)
 
-.example-box {
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-}
+            U[i][k] = matrix[i][k] - total_sum
 
-.ex1 {
-    background: #fef9e7;
-    border-left: 5px solid #f39c12;
-}
+            if i == 0:
+                steps.append(
+                    f"\\( u_{{{i+1}{k+1}}} = "
+                    f"a_{{{i+1}{k+1}}} = "
+                    f"{matrix[i][k]} \\)"
+                )
+            else:
+                formula_str = " + ".join(terms)
 
-.ex2 {
-    background: #eaf2f8;
-    border-left: 5px solid #2980b9;
-}
+                calc_str = " + ".join([
+                    f"({L[i][j]:.2f} \\times {U[j][k]:.2f})"
+                    for j in range(i)
+                ])
 
-.math-step {
-    background: rgba(255,255,255,0.6);
-    padding: 10px;
-    border-radius: 4px;
-    margin: 8px 0;
-}
+                steps.append(
+                    f"\\( u_{{{i+1}{k+1}}} = "
+                    f"a_{{{i+1}{k+1}}} - "
+                    f"({formula_str}) = "
+                    f"{matrix[i][k]} - "
+                    f"({calc_str}) = "
+                    f"{U[i][k]:.2f} \\)"
+                )
 
-.step-heading {
-    font-weight: bold;
-    color: #2c3e50;
-    margin-top: 15px;
-    border-bottom: 1px dashed #ccc;
-    padding-bottom: 4px;
-}
+        # COMPUTE L MATRIX
+        if i < n - 1:
+            steps.append(f"--- Computing Column {i+1} of Lower Matrix L ---")
 
-.answer-box {
-    background-color: #ebf5fb;
-    border: 3px solid #2980b9;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-}
+        for k in range(i + 1, n):
 
-.apps-box {
-    background-color: #f2f4f4;
-    border-left: 5px solid #7f8c8d;
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 15px;
-}
+            terms = [
+                f"(L_{{{k+1}{j+1}}} \\times U_{{{j+1}{i+1}}})"
+                for j in range(i)
+            ]
+
+            terms_calc = [
+                L[k][j] * U[j][i]
+                for j in range(i)
+            ]
+
+            total_sum = sum(terms_calc)
+
+            if U[i][i] == 0.0:
+                raise ValueError(
+                    "Division by zero encountered! "
+                    "This matrix cannot be decomposed using Doolittle Method."
+                )
+
+            L[k][i] = (matrix[k][i] - total_sum) / U[i][i]
+
+            if i == 0:
+                steps.append(
+                    f"\\( l_{{{k+1}{i+1}}} = "
+                    f"\\frac{{{matrix[k][i]}}}{{{U[i][i]}}} = "
+                    f"{L[k][i]:.2f} \\)"
+                )
+            else:
+                formula_str = " + ".join(terms)
+
+                calc_str = " + ".join([
+                    f"({L[k][j]:.2f} \\times {U[j][i]:.2f})"
+                    for j in range(i)
+                ])
+
+                steps.append(
+                    f"\\( l_{{{k+1}{i+1}}} = "
+                    f"\\frac{{{matrix[k][i]} - ({formula_str})}}"
+                    f"{{{U[i][i]:.2f}}} = "
+                    f"{L[k][i]:.2f} \\)"
+                )
+
+    return L, U, steps
+
+
+@app.route("/", methods=["GET", "POST"])
+def home():
+
+    result = None
+    error = None
+    matrix_input = None
+    steps = None
+
+    if request.method == "POST":
+
+        try:
+            # ✅ NEW: dynamic size from HTML
+            size = int(request.form.get("size", 3))
+
+            raw_matrix = [
+                [
+                    float(request.form[f'cell_{i}_{j}'])
+                    for j in range(size)
+                ]
+                for i in range(size)
+            ]
+
+            matrix_input = raw_matrix
+
+            L, U, calculated_steps = doolittle_lu_with_steps(raw_matrix)
+
+            result = {
+                'L': L,
+                'U': U
+            }
+
+            steps = calculated_steps
+
+        except ValueError as ve:
+            error = str(ve)
+
+        except Exception:
+            error = "Invalid matrix data! Please enter valid numerical values."
+
+    return render_template(
+        'index.html',
+        result=result,
+        error=error,
+        matrix_input=matrix_input,
+        steps=steps
+    )
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
