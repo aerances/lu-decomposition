@@ -19,6 +19,7 @@ def doolittle_lu_with_steps(matrix):
     for i in range(n):
 
         # COMPUTE U MATRIX
+
         steps.append(f"--- Computing Row {i+1} of Upper Matrix U ---")
 
         for k in range(i, n):
@@ -38,12 +39,15 @@ def doolittle_lu_with_steps(matrix):
             U[i][k] = matrix[i][k] - total_sum
 
             if i == 0:
+
                 steps.append(
                     f"\\( u_{{{i+1}{k+1}}} = "
                     f"a_{{{i+1}{k+1}}} = "
                     f"{matrix[i][k]} \\)"
                 )
+
             else:
+
                 formula_str = " + ".join(terms)
 
                 calc_str = " + ".join([
@@ -61,8 +65,11 @@ def doolittle_lu_with_steps(matrix):
                 )
 
         # COMPUTE L MATRIX
+
         if i < n - 1:
-            steps.append(f"--- Computing Column {i+1} of Lower Matrix L ---")
+            steps.append(
+                f"--- Computing Column {i+1} of Lower Matrix L ---"
+            )
 
         for k in range(i + 1, n):
 
@@ -81,18 +88,28 @@ def doolittle_lu_with_steps(matrix):
             if U[i][i] == 0.0:
                 raise ValueError(
                     "Division by zero encountered! "
-                    "This matrix cannot be decomposed using Doolittle Method."
+                    "This matrix cannot be decomposed "
+                    "using Doolittle Method."
                 )
 
-            L[k][i] = (matrix[k][i] - total_sum) / U[i][i]
+            L[k][i] = (
+                (matrix[k][i] - total_sum)
+                / U[i][i]
+            )
 
             if i == 0:
+
                 steps.append(
                     f"\\( l_{{{k+1}{i+1}}} = "
-                    f"\\frac{{{matrix[k][i]}}}{{{U[i][i]}}} = "
+                    f"\\frac{{a_{{{k+1}{i+1}}}}}"
+                    f"{{u_{{{i+1}{i+1}}}}} = "
+                    f"\\frac{{{matrix[k][i]}}}"
+                    f"{{{U[i][i]}}} = "
                     f"{L[k][i]:.2f} \\)"
                 )
+
             else:
+
                 formula_str = " + ".join(terms)
 
                 calc_str = " + ".join([
@@ -102,7 +119,11 @@ def doolittle_lu_with_steps(matrix):
 
                 steps.append(
                     f"\\( l_{{{k+1}{i+1}}} = "
-                    f"\\frac{{{matrix[k][i]} - ({formula_str})}}"
+                    f"\\frac{{a_{{{k+1}{i+1}}} - "
+                    f"({formula_str})}}"
+                    f"{{u_{{{i+1}{i+1}}}}} = "
+                    f"\\frac{{{matrix[k][i]} - "
+                    f"({calc_str})}}"
                     f"{{{U[i][i]:.2f}}} = "
                     f"{L[k][i]:.2f} \\)"
                 )
@@ -121,15 +142,13 @@ def home():
     if request.method == "POST":
 
         try:
-            # ✅ NEW: dynamic size from HTML
-            size = int(request.form.get("size", 3))
 
             raw_matrix = [
                 [
                     float(request.form[f'cell_{i}_{j}'])
-                    for j in range(size)
+                    for j in range(3)
                 ]
-                for i in range(size)
+                for i in range(3)
             ]
 
             matrix_input = raw_matrix
@@ -144,10 +163,15 @@ def home():
             steps = calculated_steps
 
         except ValueError as ve:
+
             error = str(ve)
 
         except Exception:
-            error = "Invalid matrix data! Please enter valid numerical values."
+
+            error = (
+                "Invalid matrix data! "
+                "Please enter valid numerical values."
+            )
 
     return render_template(
         'index.html',
