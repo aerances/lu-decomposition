@@ -1,266 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>LU Decomposition Calculator (Doolittle Method)</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-</head>
-
-<body>
-
-<div class="container">
-
-    <h1>LU Decomposition (Doolittle Method)</h1>
-
-    <p>
-        <strong>Course Project:</strong>
-        Numerical Methods Online Calculator Framework
-    </p>
-
-    <h2>1. Mathematical Discussion</h2>
-
-    <p>
-        LU Decomposition factorizes a given square coefficient matrix
-        \(A\) into a product of two companion triangular matrices:
-        a <strong>Lower Triangular Matrix (\(L\))</strong>
-        and an <strong>Upper Triangular Matrix (\(U\))</strong>,
-        such that:
-    </p>
-
-    $$A = LU$$
-
-    <p>
-        In the <strong>Doolittle algorithm variant</strong>,
-        the diagonal elements of matrix \(L\) are equal to 1:
-    </p>
-
-    $$l_{ii} = 1 \quad \text{for all } i$$
-
-    <div class="apps-box">
-
-        <h3>Applications of the Doolittle Algorithm</h3>
-
-        <ol>
-            <li>
-                Solving systems of linear equations
-            </li>
-
-            <li>
-                Matrix inversion
-            </li>
-
-            <li>
-                Determinant computation
-            </li>
-
-        </ol>
-
-    </div>
-
-    <h2>2. Step-by-Step Worked Examples</h2>
-
-    <div class="example-box ex1">
-
-        <h3>Worked Example 1</h3>
-
-        $$A =
-        \begin{pmatrix}
-        2 & 3 & 1 \\
-        4 & 7 & 4 \\
-        6 & 11 & 10
-        \end{pmatrix}$$
-
-        <div class="math-step">
-            \(u_{11}=2,\quad u_{12}=3,\quad u_{13}=1\)
-        </div>
-
-        <div class="math-step">
-            \(l_{21}=\frac{4}{2}=2\)
-            <br>
-            \(l_{31}=\frac{6}{2}=3\)
-        </div>
-
-        <div class="math-step">
-            \(u_{22}=7-(2\times3)=1\)
-            <br>
-            \(u_{23}=4-(2\times1)=2\)
-        </div>
-
-        <div class="math-step">
-            \(l_{32}=\frac{11-(3\times3)}{1}=2\)
-            <br>
-            \(u_{33}=10-(3\times1+2\times2)=3\)
-        </div>
-
-    </div>
-
-    <div class="example-box ex2">
-
-        <h3>Worked Example 2</h3>
-
-        $$A =
-        \begin{pmatrix}
-        1 & 2 & 4 \\
-        3 & 8 & 14 \\
-        2 & 6 & 13
-        \end{pmatrix}$$
-
-        <div class="math-step">
-            \(u_{11}=1,\quad u_{12}=2,\quad u_{13}=4\)
-        </div>
-
-        <div class="math-step">
-            \(l_{21}=\frac{3}{1}=3\)
-            <br>
-            \(l_{31}=\frac{2}{1}=2\)
-        </div>
-
-        <div class="math-step">
-            \(u_{22}=8-(3\times2)=2\)
-            <br>
-            \(u_{23}=14-(3\times4)=2\)
-        </div>
-
-        <div class="math-step">
-            \(l_{32}=\frac{6-(2\times2)}{2}=1\)
-            <br>
-            \(u_{33}=13-(2\times4+1\times2)=3\)
-        </div>
-
-    </div>
-
-    <h2>3. Interactive Matrix Calculator</h2>
-
-    <p>
-        Enter values for a \(3 \times 3\) matrix.
-    </p>
-
-    <form method="POST">
-
-        <div class="matrix-grid">
-
-            <input type="number" step="any" name="cell_0_0"
-            value="{{ matrix_input[0][0] if matrix_input else 2 }}" required>
-
-            <input type="number" step="any" name="cell_0_1"
-            value="{{ matrix_input[0][1] if matrix_input else 3 }}" required>
-
-            <input type="number" step="any" name="cell_0_2"
-            value="{{ matrix_input[0][2] if matrix_input else 1 }}" required>
-
-            <input type="number" step="any" name="cell_1_0"
-            value="{{ matrix_input[1][0] if matrix_input else 4 }}" required>
-
-            <input type="number" step="any" name="cell_1_1"
-            value="{{ matrix_input[1][1] if matrix_input else 7 }}" required>
-
-            <input type="number" step="any" name="cell_1_2"
-            value="{{ matrix_input[1][2] if matrix_input else 4 }}" required>
-
-            <input type="number" step="any" name="cell_2_0"
-            value="{{ matrix_input[2][0] if matrix_input else 6 }}" required>
-
-            <input type="number" step="any" name="cell_2_1"
-            value="{{ matrix_input[2][1] if matrix_input else 11 }}" required>
-
-            <input type="number" step="any" name="cell_2_2"
-            value="{{ matrix_input[2][2] if matrix_input else 10 }}" required>
-
-        </div>
-
-        <button type="submit">
-            Compute Decomposition
-        </button>
-
-    </form>
-
-    {% if error %}
-
-        <div class="error">
-
-            <strong>Calculation Halt:</strong>
-            {{ error }}
-
-        </div>
-
-    {% endif %}
-
-    {% if result %}
-
-        <div class="results-section">
-
-            <h3>Full Computation Trace</h3>
-
-            {% for step in steps %}
-
-                {% if "---" in step %}
-
-                    <div class="step-heading">
-                        {{ step.replace('---', '') }}
-                    </div>
-
-                {% else %}
-
-                    <div class="math-step">
-                        {{ step }}
-                    </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-            <div class="answer-box">
-
-                <h3>Final Answer Configuration</h3>
-
-                <p><strong>Lower Triangular Matrix (L):</strong></p>
-
-                $$L =
-                \begin{pmatrix}
-                {{ "%.2f"|format(result['L'][0][0]) }} &
-                {{ "%.2f"|format(result['L'][0][1]) }} &
-                {{ "%.2f"|format(result['L'][0][2]) }} \\
-
-                {{ "%.2f"|format(result['L'][1][0]) }} &
-                {{ "%.2f"|format(result['L'][1][1]) }} &
-                {{ "%.2f"|format(result['L'][1][2]) }} \\
-
-                {{ "%.2f"|format(result['L'][2][0]) }} &
-                {{ "%.2f"|format(result['L'][2][1]) }} &
-                {{ "%.2f"|format(result['L'][2][2]) }}
-                \end{pmatrix}$$
-
-                <p><strong>Upper Triangular Matrix (U):</strong></p>
-
-                $$U =
-                \begin{pmatrix}
-                {{ "%.2f"|format(result['U'][0][0]) }} &
-                {{ "%.2f"|format(result['U'][0][1]) }} &
-                {{ "%.2f"|format(result['U'][0][2]) }} \\
-
-                {{ "%.2f"|format(result['U'][1][0]) }} &
-                {{ "%.2f"|format(result['U'][1][1]) }} &
-                {{ "%.2f"|format(result['U'][1][2]) }} \\
-
-                {{ "%.2f"|format(result['U'][2][0]) }} &
-                {{ "%.2f"|format(result['U'][2][1]) }} &
-                {{ "%.2f"|format(result['U'][2][2]) }}
-                \end{pmatrix}$$
-
-            </div>
-
-        </div>
-
-    {% endif %}
+<h2>1. Mathematical Discussion</h2>
+
+<p>
+    LU Decomposition is a matrix factorization technique in numerical
+    methods where a square matrix \(A\) is decomposed into the product
+    of two triangular matrices:
+</p>
+
+$$
+A = LU
+$$
+
+<p>
+    where:
+</p>
+
+<ul>
+    <li>
+        \(L\) is a <strong>Lower Triangular Matrix</strong>
+        containing values below the diagonal.
+    </li>
+
+    <li>
+        \(U\) is an <strong>Upper Triangular Matrix</strong>
+        containing values above the diagonal.
+    </li>
+</ul>
+
+<p>
+    In the <strong>Doolittle Method</strong>, all diagonal entries
+    of the lower triangular matrix are equal to 1:
+</p>
+
+$$
+l_{ii} = 1
+$$
+
+<p>
+    The main goal of LU decomposition is to simplify complex matrix
+    operations such as solving systems of linear equations,
+    matrix inversion, and determinant computation.
+</p>
+
+<p>
+    Instead of directly solving:
+</p>
+
+$$
+AX = B
+$$
+
+<p>
+    the matrix \(A\) is first decomposed into:
+</p>
+
+$$
+A = LU
+$$
+
+<p>
+    which transforms the original equation into:
+</p>
+
+$$
+LUX = B
+$$
+
+<p>
+    Let:
+</p>
+
+$$
+UX = Y
+$$
+
+<p>
+    then the problem becomes:
+</p>
+
+$$
+LY = B
+$$
+
+<p>
+    This allows the solution to be obtained using two simpler stages:
+</p>
+
+<ol>
+    <li>
+        <strong>Forward Substitution</strong> to solve \(LY = B\)
+    </li>
+
+    <li>
+        <strong>Backward Substitution</strong> to solve \(UX = Y\)
+    </li>
+</ol>
+
+<p>
+    The Doolittle algorithm computes the entries of the upper matrix
+    row-by-row and the lower matrix column-by-column using the
+    following formulas:
+</p>
+
+<p>
+    <strong>Upper Triangular Matrix Formula:</strong>
+</p>
+
+$$
+u_{ij}
+=
+a_{ij}
+-
+\sum_{k=1}^{i-1}
+l_{ik}u_{kj}
+$$
+
+<p>
+    <strong>Lower Triangular Matrix Formula:</strong>
+</p>
+
+$$
+l_{ij}
+=
+\frac{
+a_{ij}
+-
+\sum_{k=1}^{j-1}
+l_{ik}u_{kj}
+}{
+u_{jj}
+}
+$$
+
+<div class="apps-box">
+
+    <h3>Applications of LU Decomposition</h3>
+
+    <ol>
+
+        <li>
+            <strong>Solving Linear Systems:</strong>
+            Efficiently solves simultaneous equations in engineering
+            and scientific computations.
+        </li>
+
+        <li>
+            <strong>Matrix Inversion:</strong>
+            LU decomposition simplifies finding the inverse of a matrix.
+        </li>
+
+        <li>
+            <strong>Determinant Evaluation:</strong>
+            The determinant of matrix \(A\) can be obtained from the
+            product of the diagonal elements of matrix \(U\).
+        </li>
+
+        <li>
+            <strong>Computer Simulations:</strong>
+            Frequently used in numerical analysis, finite element
+            methods, and machine learning computations.
+        </li>
+
+    </ol>
 
 </div>
-
-</body>
-</html>
